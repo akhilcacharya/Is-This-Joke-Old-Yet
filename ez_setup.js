@@ -19,12 +19,12 @@ var config = require(path);
 
 var ez_setup = {
     initialize: function() {
-        console.log("Howdy, and welcome to ez_setup! To quit, simply press Ctrl+C");
+        console.log("Howdy, and welcome to ez_setup! To quit, simply press Ctrl+C\n\nPlease enter a number!\n");
         this.query();
     },
 
     query: function() {
-        reader.question("Would you like to...\n[1] Add your Username\n[2] Add your password\n[3] Add your user agent or\n[4] Set a delay (in seconds) \n[5] Add an search term.\nPlease enter a number!\n\n", function(answer) {
+        reader.question("Would you like to...\n[1] Add your Username\n[2] Add your password\n[3] Add your user agent or\n[4] Set a delay (in seconds) \n[5] Add an search term.\n\n\n", function(answer) {
                 var selection = parseInt(answer);
                 //Check if number
                 if (!isNaN(selection) && ez_setup.utils.isBetween(selection, 1, 4)) {
@@ -61,7 +61,6 @@ var ez_setup = {
         }
 
         reader.question("What would you like to set your username to?\n", function(answer) {
-
             if (answer != "") {
                 config.username = answer;
                 console.log("\nCool! Your new username is " + config.username + "\n\n");
@@ -71,13 +70,11 @@ var ez_setup = {
                     }
                     ez_setup.query();
                 });
-
             } else {
                 console.log("Whups! Looks like you didn't enter anything. Lets try again.");
                 ez_setup.query();
             }
         });
-
     },
 
     setPassword: function() {
@@ -146,7 +143,7 @@ var ez_setup = {
 
         reader.question("What would you like your delay to be, in seconds?\n", function(answer) {
             answer = parseInt(answer);
-            if (!isNaN(answer)) {
+            if (!isNaN(answer) && answer > 2) {
                 config.delay = answer * 1000;
                 console.log("\nNice! Your new delay is " + answer + " seconds\n\n");
                 fs.writeFile(path, JSON.stringify(config), function(err) {
@@ -157,9 +154,8 @@ var ez_setup = {
                 });
 
             } else {
-                console.log("Whups! Looks like you didn't enter a valid number. Lets try again.");
+                console.log("Whups! Looks like you didn't enter a valid number, or your number was less than 2. Lets try again.");
                 ez_setup.query();
-
             }
         });
 
