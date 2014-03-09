@@ -1,0 +1,9 @@
+{
+  "name": "isthisjokeoldyet",
+  "version": "0.0.1",
+  "private": true,
+  "dependencies": {
+    "request": "~2.34.0",
+    "querystring": "*",
+  }
+}
