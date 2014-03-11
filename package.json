@@ -4,6 +4,6 @@
   "private": true,
   "dependencies": {
     "request": "~2.34.0",
-    "querystring": "*",
+    "querystring": "*"
   }
 }
