@@ -27,7 +27,7 @@ var ez_setup = {
         reader.question("Would you like to...\n[1] Add your Username\n[2] Add your password\n[3] Add your user agent or\n[4] Set a delay (in seconds) \n[5] Add an search term.\n\n\n", function(answer) {
                 var selection = parseInt(answer);
                 //Check if number
-                if (!isNaN(selection) && ez_setup.utils.isBetween(selection, 1, 4)) {
+                if (!isNaN(selection) && ez_setup.utils.isBetween(selection, 1, 5)) {
                     switch (selection) {
                         case 1:
                             ez_setup.setUsername();
@@ -82,7 +82,7 @@ var ez_setup = {
         if (config.password == "") {
             console.log("Hmm..appears you have no password set.");
         } else {
-            console.log("Your password is.." + config.password);
+            console.log("Your password is.. " + config.password);
         }
 
         reader.question("What would you like to set your password to?\n", function(answer) {
@@ -110,7 +110,7 @@ var ez_setup = {
         if (config.useragent == "") {
             console.log("Hmm..appears you have no useragent set.");
         } else {
-            console.log("Your useragent is.." + config.useragent);
+            console.log("Your useragent is.. " + config.useragent);
         }
 
         reader.question("What would you like to set your useragent to?\n", function(answer) {
@@ -165,14 +165,13 @@ var ez_setup = {
         if (config.entries.length == 0) {
             console.log("Hmm..appears you don't have any query entries");
         } else {
-            console.log("Your current entries are... " + config.entries.join(" , "));
+            console.log("Your current entries are...\n" + config.entries.join(",\n"));
         }
 
         reader.question("What would you like to add to your query entries?\n", function(answer) {
             if (answer != "") {
-
                 config.entries.push(answer);
-                console.log("\nCool! Your new addition is " + answer + "\n\n");
+                console.log('\nCool! Your new addition is "' + answer + '"\n\n');
                 fs.writeFile(path, JSON.stringify(config), function(err) {
                     if (err) {
                         console.log("Uh oh! We've got an error in saving. Try again!");
@@ -183,7 +182,6 @@ var ez_setup = {
             } else {
                 console.log("Whups! Looks like you didn't enter anything. Lets try again.");
                 ez_setup.query();
-
             }
         });
     },
