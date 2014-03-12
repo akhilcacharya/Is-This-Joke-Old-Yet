@@ -1,13 +1,15 @@
 /*********************************************************
  * Author: Akhil Acharya (/u/AkhilCAcharya, @AkhilCAcharya)
  * Date Started: 3/8/2014
- * Description: Reddit bot that responds to overused cliches.  
+ * Description: Reddit bot that responds to overused cliches.
  **********************************************************/
 
 var fs = require('fs');
 
 var path = "./config.json";
 var config = require(path);
+var _ = require('lodash-node'); 
+var moment = require('moment'); 
 
 var Reddit = require('./Reddit');
 var Client;
@@ -23,10 +25,10 @@ var Bot = {
                 throw err;
             } else {
                 console.log("Logged in!");
-                
+
                 //Setup scanning loop
                 setInterval(Bot.scan, config.delay);
-                
+
                 //Run it for the first time
                 Bot.scan();
             }
@@ -36,37 +38,37 @@ var Bot = {
     //Scan for all comments
     scan: function() {
         //Get www.reddit.com/comments.json, and get the latest comment (index of 0)
-        Client.get('comments', function(err, data) {
+        Client.get('comments', function(err, comments) {
             if (err) {
                 Console.log("Uh oh! Couldn't get comments. Will try again on next run through.");
                 throw err;
             } else {
-                //Check if the newest comment has already been responded to
-                if (config.history.indexOf(data[0].data.parent_id) == -1) {
+                comments.forEach(function(comment) {
+                    //Check if the newest comment has already been responded to
+                    if (config.history.indexOf(comment.data.parent_id) == -1) {
 
-                    //Debug: Show latest comment 
-                    if(config.debug) console.log("\n\nLatest comment: " + data[0].data.body + "\n\n");
-                    
-                    //Check if the post includes any search terms
-                    if (Bot.utils.postHasItem(data[0].data.body)) {
-                        //Comment on the post with a random item in the response array
-                        Client.comment(config.responses[Math.floor((Math.random() * config.responses.length) + 0)], {
-                            comment: data[0]
-                        }, function(err) {
-                            if (err) {
-                                console.log("Uh oh! Couldn't comment. Will try again on next run though.");
-                            } else {
-                                console.log('Commented on post "' + data[0].data.link_title + '" under parent user ' + data[0].data.author + "\n\n");
-                                Bot.save(data[0].data.parent_id);
-                            }
-                        });
+                        //Debug: Show latest comment 
+                        if (config.debug) console.log("\n\nLatest comment: " + comment.data.body + "\nPublished at " + moment(comment.data.created * 1000).format('MMMM Do YYYY, h:mm:ss a') + "id: " + comment.data.id +"\n\n");
+
+                        //Check if the post includes any search terms
+                        var response = Bot.utils.postHasItem(comment.data.body); 
+                        if (response.length > 0) {
+                            //Comment on the post with a random item in the response array
+                            Client.comment(config.responses[Math.floor((Math.random() * config.responses.length) + 0)], {
+                                comment: comment
+                            }, function(err) {
+                                if (err) {
+                                    console.log("Uh oh! Couldn't comment. Will try again on next run though.");
+                                } else {
+                                    console.log('Commented on post "' + comment.data.link_title + '" under parent user ' + comment.data.author + "because it contains the phrase: " + response.match +  "\n\n");
+                                    Bot.save(comment.data.parent_id);
+                                }
+                            });
+                        }
                     } else {
-                        console.log("No relevant comments so far. Will try again in a few seconds");
+                        console.log("Looks like you have already responded to this comment. Skipping a turn.");
                     }
-
-                } else {
-                    console.log("Looks like you have already responded to this comment. Skipping a turn.");
-                }
+                }); 
             }
         });
     },
@@ -91,22 +93,30 @@ var Bot = {
             //Compare lower case to lower case
             post = post.toLowerCase();
 
-            var hasItemCount = 0;
+            var responses = []; 
 
-            config.entries.forEach(function(entry) {
-                if (post.indexOf(entry) != -1) {
-                    hasItemCount++; 
-                } 
-            });
+            for(var i = 0; i < config.entries.length; i++){
+                var entry = config.entries[i].toLowerCase();
+                 if (post.indexOf(entry) != -1) {
+                    responses.push({
+                        post: post, 
+                        match: entry, 
+                    }); 
+                }
+            }
 
-           //Debug: Show number of query terms in the post itself
-           //If > 1, it returns true, as it does have items. 
-           if(config.debug) console.log("Countains " + hasItemCount + " query terms\n");
-           
-           return hasItemCount > 0;
+            //Debug: Show number of query terms in the post itself
+            //If > 1, it returns true, as it does have items. 
+            if (config.debug && responses.length > 0) console.log("Countains terms " + _.pluck(responses, 'match').join(" , ") + " query terms\n");
+
+            return responses; 
         }
     },
 }
 
 //Start it!
+
 Bot.initialize();
+
+
+

@@ -14,7 +14,7 @@ var Reddit = function(useragent) {
     this.useragent = useragent;
     this.endpoints = {
         login: "https://ssl.reddit.com/api/login/?",
-        general: "http://reddit.com/",
+        general: "http://api.reddit.com/",
         comment: "https://en.reddit.com/api/comment?"
     };
 }
@@ -50,8 +50,19 @@ Reddit.prototype.login = function(username, password, done) {
 
 
 Reddit.prototype.get = function(subreddit, done) {
-    var url = this.endpoints.general + subreddit + ".json";
-    request(url, function(err, response, body) {
+    var url = this.endpoints.general + subreddit; // + ".json";
+    
+    var options = {
+        url: url,
+        headers: {
+            "User-Agent": this.useragent,
+            "X-Modhash": modHash,
+            "Cookie": "reddit_session=" + encodeURIComponent(cookie),
+        },
+        method: "GET",
+    };
+
+    request(options, function(err, response, body) {
         if (err || response.statusCode != 200) {
             done(err, null);
             throw err;
@@ -66,7 +77,7 @@ Reddit.prototype.comment = function(comment, data, done) {
     var thing_id = "t1_";
 
     if (data.comment) {
-        thing_id = data.comment.data.parent_id;
+        thing_id += data.comment.data.id;
     } else if (data.thing_id) {
         thing_id += data.thing_id;
     }
