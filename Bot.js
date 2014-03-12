@@ -40,7 +40,7 @@ var Bot = {
         //Get www.reddit.com/comments.json, and get the latest comment (index of 0)
         Client.get('comments', function(err, comments) {
             if (err) {
-                Console.log("Uh oh! Couldn't get comments. Will try again on next run through.");
+                console.log("Uh oh! Couldn't get comments. Will try again on next run through.");
                 throw err;
             } else {
                 comments.forEach(function(comment) {
@@ -99,7 +99,6 @@ var Bot = {
                 var entry = config.entries[i].toLowerCase();
                  if (post.indexOf(entry) != -1) {
                     responses.push({
-                        post: post, 
                         match: entry, 
                     }); 
                 }
@@ -107,7 +106,7 @@ var Bot = {
 
             //Debug: Show number of query terms in the post itself
             //If > 1, it returns true, as it does have items. 
-            if (config.debug && responses.length > 0) console.log("Countains terms " + _.pluck(responses, 'match').join(" , ") + " query terms\n");
+            if (config.debug && responses.length > 0) console.log("Countains terms " + responses + " query terms\n");
 
             return responses; 
         }
