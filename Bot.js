@@ -39,7 +39,7 @@ var Bot = {
     scan: function() {
         //Get www.reddit.com/comments.json, and get the latest comment (index of 0)
         Client.get('comments', function(err, comments) {
-            if (err) {
+            if (err || !comments) {
                 console.log("Uh oh! Couldn't get comments. Will try again on next run through.");
                 throw err;
             } else {
@@ -51,8 +51,8 @@ var Bot = {
                         if (config.debug) console.log("\n\nLatest comment: " + comment.data.body + "\nPublished at " + moment(comment.data.created * 1000).format('MMMM Do YYYY, h:mm:ss a') + "id: " + comment.data.id +"\n\n");
 
                         //Check if the post includes any search terms
-                        var response = Bot.utils.postHasItem(comment.data.body); 
-                        if (response.length > 0) {
+                        var responses = Bot.utils.postHasItem(comment.data.body); 
+                        if (responses.length > 0) {
                             //Comment on the post with a random item in the response array
                             Client.comment(config.responses[Math.floor((Math.random() * config.responses.length) + 0)], {
                                 comment: comment
@@ -60,7 +60,7 @@ var Bot = {
                                 if (err) {
                                     console.log("Uh oh! Couldn't comment. Will try again on next run though.");
                                 } else {
-                                    console.log('Commented on post "' + comment.data.link_title + '" under parent user ' + comment.data.author + "because it contains the phrase: " + response.match +  "\n\n");
+                                    console.log('Commented on post "' + comment.data.link_title + '" under parent user ' + comment.data.author + "because it contains the phrase: " + responses.match +  "\n\n");
                                     Bot.save(comment.data.parent_id);
                                 }
                             });
@@ -103,10 +103,6 @@ var Bot = {
                     }); 
                 }
             }
-
-            //Debug: Show number of query terms in the post itself
-            //If > 1, it returns true, as it does have items. 
-            if (config.debug && responses.length > 0) console.log("Countains terms " + responses + " query terms\n");
 
             return responses; 
         }
