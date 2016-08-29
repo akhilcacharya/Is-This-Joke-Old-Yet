@@ -1,3 +1,8 @@
+
+I wrote this Bot a few years ago for a novelty account on Reddit. API not guaranteed to work anymore. 
+
+---------
+
 #Is This Joke Old Yet Bot
 
 I realized after promising you to make a bot that most Reddit libraries for node totally suck for this purpose. So I made my own ;)
